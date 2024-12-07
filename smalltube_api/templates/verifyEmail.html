@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Activando correo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-300 flex justify-center items-center min-h-screen">
+    <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+      <div class="text-center">
+        <!-- Mensaje de carga con Lottie File más grande y encima del texto -->
+        <div
+          id="loading-message"
+          class="text-lg font-semibold text-gray-700 flex justify-center items-center flex-col"
+        >
+          <script
+            src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs"
+            type="module"
+          ></script>
+          <dotlottie-player
+            src="https://lottie.host/b58fd559-d028-466f-8ac9-91b547d85d4f/oqiQsfbA9D.lottie"
+            background="transparent"
+            speed="1"
+            style="width: 600px; height: 200px"
+            loop
+            autoplay
+          ></dotlottie-player>
+          <span class="font-bold text-xl mt-4"
+            >verificando tu correo, por favor espera...</span
+          >
+        </div>
+
+        <!-- Mensaje de éxito -->
+        <div
+          id="success-message"
+          class="hidden text-lg font-semibold text-gray-700 flex justify-center items-center flex-col mt-4"
+        >
+          <script
+            src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs"
+            type="module"
+          ></script>
+          <!-- Lottie Animation para el éxito -->
+          <dotlottie-player
+            src="https://lottie.host/71d367d6-fd8a-47eb-8501-68d8ec1f3b2d/jmVv1uL71R.lottie"
+            background="transparent"
+            speed="1"
+            style="width: 600px; height: 200px"
+            loop
+            autoplay
+          ></dotlottie-player>
+          <span class="font-bold text-xl text-green mt-4"
+            >¡Correo activado con éxito!</span
+          >
+        </div>
+
+        <!-- Mensaje para cerrar la ventana -->
+        <div
+          id="close-message"
+          class="hidden mt-4 text-lg font-semibold text-gray-700 bg-yellow-100 p-3 rounded-md shadow-lg fixed bottom-5 left-1/2 transform -translate-x-1/2"
+        >
+          <span>Ya puede cerrar esta ventana. Gracias por su paciencia</span>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", async () => {
+        document.getElementById("loading-message").classList.remove("hidden");
+        document.getElementById("success-message").classList.add("hidden");
+
+        const emailInUrl = new URLSearchParams(window.location.search).get(
+          "email"
+        );
+
+        if (emailInUrl) {
+          const headers = new Headers();
+          headers.append("Content-Type", "application/json");
+
+          try {
+            const response = await fetch(
+              `http://localhost:8000/api/verify/?email=${emailInUrl}`,
+              {
+                method: "GET",
+                headers: headers,
+              }
+            );
+
+            if (response.ok) {
+              const data = await response.json();
+
+              setTimeout(() => {
+                document
+                  .getElementById("loading-message")
+                  .classList.add("hidden");
+              }, 2000);
+
+              setTimeout(() => {
+                document
+                  .getElementById("success-message")
+                  .classList.remove("hidden");
+              }, 2500);
+
+              if (data.is_verified) {
+                setTimeout(() => {
+                  document
+                    .getElementById("close-message")
+                    .classList.remove("hidden");
+                }, 3000);
+              }
+            } else {
+              console.error("Error en la solicitud", response.status);
+            }
+          } catch (error) {
+            console.error("Error al hacer la solicitud:", error);
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
