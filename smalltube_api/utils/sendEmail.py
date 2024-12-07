@@ -2,10 +2,15 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
 def send_email(subject, link, to_email):
     server = None
-    from_email = "juancamilomendozavillegas14@gmail.com"
-    password = "bmod tzhs xnmp hbyo"
+    from_email = os.getenv("EMAIL_GMAIL_SMTP")
+    password = os.getenv("PASSWORD_GMAIL_SMTP")
 
     # creamos el mensaje para enviarlo
     msg = MIMEMultipart()
