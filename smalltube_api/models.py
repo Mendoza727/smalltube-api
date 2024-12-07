@@ -65,12 +65,21 @@ class LogsLoggin(models.Model):
     def __str__(self):
         return f"Log de {self.id_user.email} - {self.created_at}"
 
+
 class Category(models.Model):
     name = models.CharField(max_length=50, unique=True)
     description = models.TextField(blank=True, null=True)
 
+    class Meta:
+        verbose_name = "categoria"
+        verbose_name_plural = "categorias"
+
+    def __str__(self):
+        return f"categoria {self.name} creada correctamente"
 
 class Videos(models.Model):
+    category = models.ManyToManyField(Category)  # Relación de muchos a muchos
+
     GENERAL_TYPE_VIDEO = [
         ("VT", "Video con Título"),
         ("VBL", "Video con Banner Lateral"),
@@ -83,7 +92,6 @@ class Videos(models.Model):
     is_approved = models.BooleanField(default=False, verbose_name="Aprobado por moderador")
     moderation_notes = models.TextField(blank=True, null=True, verbose_name="Notas de moderación")
     type_video = models.CharField(choices=GENERAL_TYPE_VIDEO, verbose_name="Tipo de video", default="VT", max_length=255)
-    category = models.ForeignKey(Category, null=True, blank=True, on_delete=models.SET_NULL, related_name="videos")
     is_active = models.BooleanField(default=False, verbose_name="video activo")
     is_deleted = models.BooleanField(default=False, verbose_name="Video eliminado")
     id_autor = models.ForeignKey(Users, on_delete=models.CASCADE, verbose_name="Autor del video")
@@ -98,6 +106,17 @@ class Videos(models.Model):
     def __str__(self):
         return self.title
 
+class Videoscategory(models.Model):
+    id_video = models.ForeignKey(Videos, on_delete=models.CASCADE)
+    id_category = models.ForeignKey(Category, on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = "categoria de los videos"
+        verbose_name_plural = "categorias de los videos"
+
+    def __str__(self):
+        return f"Video {self.id_video.title} - Categoria {self.id_category.name}"
+
 class Comments(models.Model):
     id_user = models.ForeignKey(Users, on_delete=models.CASCADE, blank=False, verbose_name="Usuario que escribio el mensaje")
     id_video = models.ForeignKey(Videos, on_delete=models.CASCADE, blank=False, verbose_name="Video en el que comento")
@@ -111,7 +130,7 @@ class Comments(models.Model):
         verbose_name_plural = 'comentarios'
 
     def __str__(self):
-        return f"Comentario de {self.id_user.email} en {self.id_video.title}"
+        return self.comment
 
 class Visualizations(models.Model):
     id_user = models.ForeignKey(Users, on_delete=models.CASCADE, blank=False, verbose_name="usuario que vio el video")
@@ -123,7 +142,7 @@ class Visualizations(models.Model):
         verbose_name_plural = "visualizaciones"
 
     def __str__(self):
-        return str(self.id_user)
+        return self.id_user
 
 class Likes(models.Model):
     id_user = models.ForeignKey(Users, on_delete=models.CASCADE, blank=False, verbose_name="usuario que dio like")
@@ -138,7 +157,7 @@ class Likes(models.Model):
         return str(self.created_at)
 
 class Notifications(models.Model):
-    user = models.ForeignKey(Users, on_delete=models.CASCADE, related_name="notificacion"),
+    user = models.ForeignKey(Users, on_delete=models.CASCADE, related_name="notificacion", null=True, blank=True)
     message = models.TextField(verbose_name="Mensaje de notificacion")
     is_read = models.BooleanField(default=True, verbose_name="esta leido?")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de creación")
@@ -149,20 +168,6 @@ class Notifications(models.Model):
     
     def __str__(self):
         return self.message
-
-class VideoStatistics(models.Model):
-    video = models.ForeignKey(Videos, on_delete=models.CASCADE, related_name="statistics")
-    date = models.DateField(auto_now_add=True)
-    views = models.PositiveIntegerField(default=0)
-    likes = models.PositiveIntegerField(default=0)
-    comments = models.PositiveIntegerField(default=0)
-
-    class Meta:
-        verbose_name = "estadistica de video"
-        verbose_name_plural = "estadisticas de los videos"
-    
-    def __str__(self):
-        return f"like {self.likes} views {self.views}"
 
 class TemplatesEmails(models.Model):
     name = models.CharField(blank=False, max_length=255, verbose_name="tipo de email")

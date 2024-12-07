@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Activando correo</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   </head>
   <body class="bg-gray-300 flex justify-center items-center min-h-screen">
     <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
@@ -89,25 +90,26 @@
             if (response.ok) {
               const data = await response.json();
 
-              setTimeout(() => {
-                document
-                  .getElementById("loading-message")
-                  .classList.add("hidden");
-              }, 2000);
-
-              setTimeout(() => {
-                document
-                  .getElementById("success-message")
-                  .classList.remove("hidden");
-              }, 2500);
-
-              if (data.is_verified) {
+              setTimeout(async () => {
                 setTimeout(() => {
                   document
-                    .getElementById("close-message")
+                    .getElementById("loading-message")
+                    .classList.add("hidden");
+                }, 2000);
+
+                setTimeout(() => {
+                  document
+                    .getElementById("success-message")
                     .classList.remove("hidden");
-                }, 3000);
-              }
+                }, 2500);
+                if (data.is_verified) {
+                  setTimeout(() => {
+                    document
+                      .getElementById("close-message")
+                      .classList.remove("hidden");
+                  }, 3000);
+                }
+              }, 2000);
             } else {
               console.error("Error en la solicitud", response.status);
             }

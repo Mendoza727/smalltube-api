@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Users, LogsLoggin, Videos, Comments, Visualizations, Likes, TemplatesEmails
+from .models import *
 from django.contrib.auth import get_user_model
 
 UserModel = get_user_model()
@@ -37,11 +37,20 @@ class LogsUserSerializer(serializers.ModelSerializer):
         model = LogsLoggin
         fields = '__all__'
 
+class CategorieSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = '__all__'
 class VideoSerializer(serializers.ModelSerializer):
+    category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all(), many=True)
     class Meta:
         model = Videos
         fields = '__all__'
-
+class NotificationSerializer(serializers.Serializer):
+    
+    class Meta:
+        model = Notifications
+        fields = '__all__'
 class VideoIDSerializer(serializers.Serializer):
     id = serializers.IntegerField()
 
@@ -53,7 +62,7 @@ class CommentSerializer(serializers.ModelSerializer):
 class VisualitationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Visualizations
-        field = '__all__'
+        fields = '__all__'
 
 class LikeSerializer(serializers.ModelSerializer):
     class Meta:
